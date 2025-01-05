@@ -108,7 +108,6 @@
             type: 'GET',
             url: url,
             success: function(response) {
-                
                 $("#modal-title").html("Edit Aktifitas");
                 $("#modal-button").html("Update Data");
                 $('#modal-loogbook form').attr('action', action);
@@ -120,6 +119,7 @@
     }
 
     $("#modal-loogbook").on("hide.bs.modal", function() {
+
         $("#modal-title").html("Tambah Akifitas");
         $("#modal-button").html("Simpan")
         $('#modal-loogbook form')[0].reset();

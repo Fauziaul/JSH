@@ -47,9 +47,9 @@ class LoginController extends Controller
             return view('auth.aktifasi');
         }
         if ($user->hasRole('superadmin')) {
-            return redirect('super-admin/dashboard');
+            return redirect('super-admin/');
         } else {
-            return redirect('mahasiswa/dashboard');
+            return redirect('mahasiswa/');
         }
     }
 }
