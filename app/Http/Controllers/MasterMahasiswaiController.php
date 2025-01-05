@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AddMahasiswaRequest;
+use App\Models\JurusanModel;
 use App\Models\Mahasiswa;
+use App\Models\Universitas;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
@@ -15,19 +17,21 @@ use Yajra\DataTables\Facades\DataTables;
 class MasterMahasiswaiController extends Controller
 {
     public function index(){
-        return view('admin.master.master_mahasiswa');
+        $univ = Universitas::all();
+        $jurusan = JurusanModel::all();
+        return view('admin.master.master_mahasiswa', compact('univ', 'jurusan'));
     }
 
     public function show(){
 
-        $mahasiswa = Mahasiswa::orderBy('nim', 'asc')->get();
+        $mahasiswa = Mahasiswa::with('univ', 'jurusan')->orderBy('nim', 'asc')->get();
         return DataTables::of($mahasiswa)
         ->addIndexColumn()
         ->editColumn('status', function ($row) {
             if ($row->status == 1) {
-                return "<div class='text-center'><div class='badge rounded-pill bg-label-success'>" . "Active" . "</div></div>";
+                return "<div'><div class='badge rounded-pill bg-label-success'>" . "Active" . "</div></div>";
             } else {
-                return "<div class='text-center'><div class='badge rounded-pill bg-label-danger'>" . "Inactive" . "</div></div>";
+                return "<div'><div class='badge rounded-pill bg-label-danger'>" . "Inactive" . "</div></div>";
             }
         })
         ->addColumn('action', function ($row) {
@@ -45,19 +49,19 @@ class MasterMahasiswaiController extends Controller
 
     public function store(AddMahasiswaRequest $request){
         try{
-            
+
             $mahasiswa = Mahasiswa::create([
                 'nim' => $request->nim,
-                'namamhs' => $request->nama,
-                'emailmhs' => $request->email,
-                'jurusan' => $request->jurusan,
-                'namauniv' => $request->univ,
+                'namamhs' => $request->namamhs,
+                'emailmhs' => $request->emailmhs,
+                'id_jurusan' => $request->jurusan,
+                'id_univ' => $request->univ,
                 'status' => 1
             ]);
             $user = User::create([
                 'nim' => $request->nim,
-                'name' => $request->nama,
-                'email' => $request->email,
+                'name' => $request->namamhs,
+                'email' => $request->emailmhs,
                 'password' => Hash::make($request->password),
             ]);
             $user->assignRole('mahasiswa');
@@ -99,7 +103,7 @@ class MasterMahasiswaiController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(String $id)
     {
         $mahasiswa = Mahasiswa::where('nim', $id)->first();
         return $mahasiswa;
@@ -108,23 +112,31 @@ class MasterMahasiswaiController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update( $request, string $id)
+    public function update(Request $request, $id)
     {
         try {
+
             $user = User::where('nim', $id)->first();
-            $mahasiswa = Mahasiswa::where('nim', $id)->first();
-            $user == $mahasiswa ;
+            if ($user) {
+                $user->name = $request->namamhs;
+                $user->email = $request->emailmhs;
+                if ($request->filled('password')) {
+                    $user->password = bcrypt($request->password);
+                }
+                $user->save();
+            }
+            $mahasiswa = Mahasiswa::where('nim', $id)->with('nim', 'jurusan', 'univ')->first();
             $mahasiswa->namamhs = $request->namamhs;
-            $mahasiswa->jalan = $request->jalan;
-            $mahasiswa->kota = $request->kota;
-            $mahasiswa->telp = $request->telp;
+            $mahasiswa->emailmhs = $request->emailmhs;
+            $mahasiswa->id_jurusan = $request->jurusan;
+            $mahasiswa->id_univ = $request->univ;
             $mahasiswa->save();
 
             return response()->json([
                 'error' => false,
-                'message' => 'Universitas successfully Updated!',
-                'modal' => '#modal-universitas',
-                'table' => '#table-master-univ'
+                'message' => 'Mahasiswa successfully Updated!',
+                'modal' => '#modal-master-mahasiswa',
+                'table' => '#table-master-mahasiswa'
             ]);
         } catch (Exception $e) {
             return response()->json([

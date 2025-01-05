@@ -22,20 +22,30 @@ class Mahasiswa extends Model
         'tempatlahirmhs',
         'tanggallahirmhs',
         'posisi',
-        'namauniv',
+        'id_univ',
         'fakultas',
-        'jurusan',
+        'id_jurusan',
         'foto',
         'status'
     ];
     protected $keyType = 'string';
     protected $primaryKey = 'nim';
-    public $timestamps = false;
+    public $timestamps = true;
 
     public function presensi(){
         return $this->hasMany(Presensi::class, 'nim', 'nim');
     }
-    public function user(){
+    public function nim(){
         return $this->belongsTo(User::class, 'nim');
     }
+
+    public function jurusan()
+    {
+        return $this->belongsTo(JurusanModel::class, 'id_jurusan');
+    }
+    public function univ()
+    {
+        return $this->belongsTo(Universitas::class, 'id_univ');
+    }
+
 }

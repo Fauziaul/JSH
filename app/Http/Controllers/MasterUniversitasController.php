@@ -25,6 +25,13 @@ class MasterUniversitasController extends Controller
                 return "<div class='text-center'><div class='badge rounded-pill bg-label-danger'>" . "Inactive" . "</div></div>";
             }
         })
+        ->editColumn('kategori', function ($row) {
+            if ($row->kategori == 1) {
+                return "<div class='text-center'>" . "SMA/SMK" . "</div>";
+            } else {
+                return "<div class='text-center'>" . "Perguruan Tinggi" . "</div>";
+            }
+        })
         ->addColumn('action', function ($row) {
             $icon = ($row->status) ? "ti-circle-x" : "ti-circle-check";
             $color = ($row->status) ? "danger" : "success";
@@ -33,7 +40,7 @@ class MasterUniversitasController extends Controller
             <a data-status='{$row->status}' data-id='{$row->id_univ}' data-url='master-universitas/status' class='btn-icon update-status text-{$color} waves-effect waves-light'><i class='tf-icons ti {$icon}'></i></a>";
             return $btn;
         })
-        ->rawColumns(['action', 'status'])
+        ->rawColumns(['action', 'status', 'kategori'])
 
         ->make(true);
     }
@@ -42,6 +49,7 @@ class MasterUniversitasController extends Controller
         try {
             $univ = Universitas::create([
                 'namauniv' => $request->namauniv,
+                'kategori' => $request->kategori,
                 'status' => 1
             ]);
             return response()->json([
@@ -68,6 +76,31 @@ class MasterUniversitasController extends Controller
             return response()->json([
                 'error' => false,
                 'message' => 'Status univ successfully Updated!',
+                'table' => '#table-master-universitas'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function edit(String $id) {
+        $universitas = Universitas::Where('id_univ', $id)->first();
+        return $universitas;
+    }
+
+    public function update(UniversitasRequest $request, $id) {
+        try {
+            $universitas = Universitas::Where('id_univ', $id)->first();
+            $universitas->namauniv = $request->namauniv;
+            $universitas->kategori = $request->kategori;
+            $universitas->save();
+            return response()->json([
+                'error' => false,
+                'message' => 'Universitas successfully Updated!',
+                'modal' => '#modal-master-universitas',
                 'table' => '#table-master-universitas'
             ]);
         } catch (Exception $e) {

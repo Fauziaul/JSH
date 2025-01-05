@@ -39,8 +39,9 @@
                                 <th>NOMOR</th>
                                 <th style="min-width: 125px;">Nama Mahasiswa</th>
                                 <th>Email</th>
-                                {{-- <th>Universitas</th> --}}
-                                {{-- <th>Jurusan</th> --}}
+                                <th>NIM/NISN</th>
+                                <th>Instansi</th>
+                                <th>Jurusan</th>
                                 <th>Status</th>
                                 <th style="min-width: 100px;">Aksi</th>
                             </tr>
@@ -66,7 +67,7 @@
                     <div class="row">
                         <div class="col mb-2 form-input">
                             <label for="nama" class="form-label">Nama</label>
-                            <input type="text" id="nama" onkeyup="this.value = this.value.replace(/[^a-zA-Z\s]+/gi, '');" name="nama" class="form-control" placeholder="Masukkan Nama" />
+                            <input type="text" id="namamhs" onkeyup="this.value = this.value.replace(/[^a-zA-Z\s]+/gi, '');" name="namamhs" class="form-control" placeholder="Masukkan Nama" />
                             <div class="invalid-feedback"></div>
 
                         </div>
@@ -82,25 +83,35 @@
                     <div class="row">
                         <div class="col mb-2 form-input">
                             <label for="email" class="form-label">Email</label>
-                            <input type="text" id="email" name="email" class="form-control" placeholder="Masukkan Email" />
+                            <input type="text" id="emailmhs" name="emailmhs" class="form-control" placeholder="Masukkan Email" />
                             <div class="invalid-feedback"></div>
 
                         </div>
                     </div>
                     <div class="row">
                         <div class="col mb-2 form-input">
-                            <label for="jurusan" class="form-label">Jurusan</label>
-                            <input type="text" id="jurusan" name="jurusan" class="form-control" placeholder="Masukkan Jurusan" />
+                            <label for="univ" class="form-label">Universitas/Sekolah</label>
+                            <select class="form-select select2" id="instansi" name="univ"
+                                data-placeholder="Pilih Universitas">
+                                <option disabled selected>Pilih Universitas/Sekolah</option>
+                                @foreach ($univ as $u)
+                                    <option value="{{ $u->id_univ }}">{{ $u->namauniv }}</option>
+                                @endforeach
+                            </select>
                             <div class="invalid-feedback"></div>
-
                         </div>
                     </div>
                     <div class="row">
                         <div class="col mb-2 form-input">
-                            <label for="univ" class="form-label">Universitas</label>
-                            <input type="text" id="univ" name="univ" class="form-control" placeholder="Masukkan Universitas" />
+                            <label for="univ" class="form-label">Jurusan</label>
+                            <select class="form-select select2" id="jurusan" name="jurusan"
+                                data-placeholder="Pilih Jurusan">
+                                <option disabled selected>Pilih Jurusan</option>
+                                @foreach ($jurusan as $u)
+                                    <option value="{{ $u->id_jurusan }}">{{ $u->jurusan }}</option>
+                                @endforeach
+                            </select>
                             <div class="invalid-feedback"></div>
-
                         </div>
                     </div>
                     <div class="row">
@@ -157,7 +168,6 @@
 <script>
 
     var table = $('#table-master-mahasiswa').DataTable({
-        // "data": jsonData,
         ajax: '{{ route("master.show")}}',
         serverSide: false,
         processing: true,
@@ -176,6 +186,17 @@
                 data: "emailmhs",
                 name: "emailmhs"
             },
+            {
+                data: "nim",
+                name: "nim"
+            },
+            {
+                data: 'univ.namauniv',
+                name: 'namauniv' },
+
+            {
+                data: 'jurusan.jurusan',
+                name: 'jurusan' },
             {
                 data: "status",
                 name: "status"
@@ -200,12 +221,28 @@
                 $("#modal-title").html("Edit Aktifitas");
                 $("#modal-button").html("Update Data");
                 $('#modal-master-mahasiswa form').attr('action', action);
-                $('#nama').val(response.nama);
-                $('#deskripsi').val(response.deskripsi);
-                $('#modal-loogbook').modal('show');
+                $('#namamhs').val(response.namamhs).trigger('change');
+                $('#nim').val(response.nim);
+                $('#nim').prop('disabled', true);
+                $('#emailmhs').val(response.emailmhs);
+                $('#jurusan').val(response.id_jurusan);
+                $('#instansi').val(response.id_univ);
+                $('#password').val(response.password);
+                $('#modal-master-mahasiswa').modal('show');
             }
         });
     }
+
+    $("#modal-master-mahasiswa").on("hide.bs.modal", function() {
+    $("#modal-title").html("Tambah Akifitas");
+    $("#modal-button").html("Simpan")
+    $('#modal-master-mahasiswa form')[0].reset();
+    $('#nim').val('').prop('disabled', false); // Aktifkan saat tambah data
+    $('#modal-master-mahasiswa form #role').val('').trigger('change');
+    $('#modal-master-mahasiswa form').attr('action', "{{ url('super-admin/master-mahasiswa/store') }}");
+    $('.invalid-feedback').removeClass('d-block');
+    $('.form-control').removeClass('is-invalid');
+    });
 
     jQuery(function() {
         jQuery('.showSingle').click(function() {

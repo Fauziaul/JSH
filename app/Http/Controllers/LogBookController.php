@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Storage;
 class LoogBookController extends Controller
 {
     public function index() {
-        
+
         return view('mahasiswa.loogbook.loogbook');
     }
 
@@ -29,10 +29,22 @@ class LoogBookController extends Controller
             ->editColumn('created_at', function ($row) {
                 return Carbon::parse($row->created_at)->format('d/m/y');
             })
+            ->editColumn('updated_at', function ($row) {
+                return Carbon::parse($row->updated_at)->format('d/m/y');
+            })
             ->editColumn('picture', function ($row) {
-                // Generate URL gambar menggunakan Storage
                 $url = Storage::url('' . $row->picture);
                 return "<img src='$url' alt='Picture' style='width: 50px; height: 50px; object-fit: cover;'>";
+            })
+
+            ->editColumn('status', function ($row){
+                if ($row->status == 0){
+                    return "<div class='badge rounded-pill bg-label-danger'>" . "Ditolak" . "</div>";
+                } elseif ($row->status == 1 ){
+                    return "<div class='badge rounded-pill bg-label-success'>" . "Disetujui" . "</div>";
+                } else {
+                    return "<div class='badge rounded-pill bg-label-warning'>" . "Belum Disetujui" . "</div>";
+                }
             })
             ->addColumn('action', function ($row) {
                 $icon = ($row->status) ? "ti-circle-x" : "ti-circle-check";
@@ -42,7 +54,7 @@ class LoogBookController extends Controller
                 <a data-id='{$row->id_loogbook}' data-url='loogbook/destroy' class='btn-icon delete-data waves-effect waves-light'><i class='ti ti-trash fa-lg' style='color:red'></i></a>";
                 return $btn;
             })
-            ->rawColumns(['action', 'picture']) 
+            ->rawColumns(['action', 'picture', 'status'])
             ->make(true);
     }
 
@@ -50,8 +62,8 @@ class LoogBookController extends Controller
         try {
 
             $mahasiswa = Mahasiswa::where('nim', auth()->user()->nim)->first();
-                     
-            $file = null; 
+
+            $file = null;
             if ($request->file('picture')) {
                 $file = Storage::put('public/loogbook' , $request->file('picture'));
             }
@@ -60,10 +72,10 @@ class LoogBookController extends Controller
                 'nim' => $mahasiswa->nim,
                 'nama' => $request->nama,
                 'deskripsi' => $request->deskripsi,
-                'picture' => $file
-                
+                'picture' => $file,
+                'status' => 2
+
             ]);
-            // dd($loogbook);
             return response()->json([
                 'error' => false,
                 'message' => 'Loogbook successfully Created!',
@@ -82,12 +94,12 @@ class LoogBookController extends Controller
 
         $loogbook = LoogBoook::Where('id_loogbook', $id)->first();
         return $loogbook;
-        
+
     }
 
     public function update(LoogbookRequest $request, $id){
         try {
-            $file = null; 
+            $file = null;
             if ($request->file('picture')) {
                 $file = Storage::put('public/loogbook' , $request->file('picture'));
             }
@@ -95,6 +107,7 @@ class LoogBookController extends Controller
             $loogbook->nama = $request->nama;
             $loogbook->deskripsi = $request->deskripsi;
             $loogbook->picture = $file;
+            $loogbook->status = 2;
             $loogbook->save();
             return response()->json([
                 'error' => false,

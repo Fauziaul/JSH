@@ -36,9 +36,11 @@
                                 <th style="max-width:30px">NO</th>
                                 <th style="min-width: 125px;">Title</th>
                                 <th>Deskription</th>
-                                <th>Created-At</th>
+                                <th>Created</th>
+                                <th>Updated</th>
                                 <th>Gambar</th>
                                 <th>AKSI</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
                     </table>
@@ -78,15 +80,23 @@
                 name: "created_at",
             },
             {
+                data: "updated_at",
+                name: "updated_at",
+            },
+            {
                 data: "picture",
                 name: "picture",
             },
             {
                 data: "action",
                 name: "action"
+            },
+            {
+                data: "status",
+                name: "status"
             }
-        ]       
-        
+        ]
+
     });
 
     function edit(e) {

@@ -37,8 +37,9 @@
                         <thead>
                             <tr>
                                 <th>NOMOR</th>
-                                <th style="min-width: 125px;">Nama universitas</th>
-                                <th>Status</th>
+                                <th >Nama universitas</th>
+                                <th class="text-center">Kategori</th>
+                                <th class="text-center">Status</th>
                                 <th style="min-width: 100px;">Aksi</th>
                             </tr>
                         </thead>
@@ -59,14 +60,22 @@
             <form class="default-form" method="POST" enctype="multipart/form-data" action="{{ route('univ.store') }}">
                 @csrf
                 <div class="modal-body">
-
                     <div class="row">
                         <div class="col mb-2 form-input">
                             <label for="namauniv" class="form-label">Nama Universitas</label>
-                            <input type="text" id="namauniv" onkeyup="this.value = this.value.replace(/[^a-zA-Z\s]+/gi, '');" name="namauniv" class="form-control" placeholder="Masukkan Universitas" />
+                            <input type="text" id="namauniv" name="namauniv" class="form-control" placeholder="Masukkan Universitas" />
                             <div class="invalid-feedback"></div>
-
                         </div>
+                    </div>
+                    <div class="col mb-2 form-input">
+                        <label for="kategori" class="form-label">Universitas</label>
+                        <select class="form-select select2" id="kategori" name="kategori"
+                            data-placeholder="Pilih Kategori">
+                            <option disabled selected>Pilih Kategori</option>
+                                <option value="1">SMA/SMK</option>
+                                <option value="2">Perguruan Tinggi</option>
+                        </select>
+                        <div class="invalid-feedback"></div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -121,6 +130,10 @@
                 name: "namauniv"
             },
             {
+                data: "kategori",
+                name: "kategori"
+            },
+            {
                 data: "status",
                 name: "status"
             },
@@ -144,12 +157,22 @@
                 $("#modal-title").html("Edit Aktifitas");
                 $("#modal-button").html("Update Data");
                 $('#modal-master-universitas form').attr('action', action);
-                $('#nama').val(response.nama);
-                $('#deskripsi').val(response.deskripsi);
-                $('#modal-loogbook').modal('show');
+                $('#namauniv').val(response.namauniv);
+                $('#kategori').val(response.kategori);
+                $('#modal-master-universitas').modal('show');
             }
         });
     }
+
+    $("#modal-master-universitas").on("hide.bs.modal", function() {
+    $("#modal-title").html("Tambah Akifitas");
+    $("#modal-button").html("Simpan")
+    $('#modal-master-universitas form')[0].reset();
+    $('#modal-master-universitas form #role').val('').trigger('change');
+    $('#modal-master-universitas form').attr('action', "{{ url('super-admin/master-universitas/store') }}");
+    $('.invalid-feedback').removeClass('d-block');
+    $('.form-control').removeClass('is-invalid');
+    });
 
     jQuery(function() {
         jQuery('.showSingle').click(function() {

@@ -24,12 +24,12 @@ class AddMahasiswaRequest extends FormRequest
     public function rules()
     {
         return [
-            'nama' => ['required', 'string', 'max:255'],
+            'namamhs' => ['required', 'string', 'max:255'],
             'nim' => ['required', 'string', 'max:255'],
-            // 'jurusan' => ['required', 'string', 'max:255', 'min:2'],
+            'jurusan' => ['required'],
             'password' => 'required|min:8',
-            // 'univ' => ['required', 'string', 'max:255', 'min:2'],
-            'email' => 'required|email:rfc,dns|unique:users',
+            'univ' => ['required'],
+            'emailmhs' => 'required|email:rfc,dns',
         ];
     }
 

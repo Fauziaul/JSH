@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,8 +17,9 @@ use Illuminate\Support\Facades\Route;
 */
 //landing-page
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('landing-page')->middleware('guest');
-// Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
-// Auth::routes();
+Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
+
+Auth::routes();
 
 Route::middleware('auth')->group(function () {
     Route::prefix('/super-admin')->middleware('can:read.only.superadmin')->group(function () {
@@ -27,8 +30,8 @@ Route::middleware('auth')->group(function () {
             Route::get('/show', [App\Http\Controllers\MasterMahasiswaiController::class, 'show'])->name('master.show');
             Route::post('/status/{id}', [App\Http\Controllers\MasterMahasiswaiController::class, 'status'])->name('master.status');
             Route::get('/edit/{id}', [App\Http\Controllers\MasterMahasiswaiController::class, 'edit'])->name('master.edit');
-            Route::post('/update/{id}', [App\Http\Controllers\MasterMahasiswaiController::class, 'update'])->name('master.update');
             Route::post('/store', [App\Http\Controllers\MasterMahasiswaiController::class, 'store'])->name('master.store');
+            Route::post('/update/{id}', [App\Http\Controllers\MasterMahasiswaiController::class, 'update'])->name('master.update');
 
         });
         Route::prefix('data-pegawai')->group(function () {
@@ -58,11 +61,26 @@ Route::middleware('auth')->group(function () {
             Route::post('/store', [App\Http\Controllers\MasterUniversitasController::class, 'store'])->name('univ.store');
 
         });
+        Route::prefix('master-masa-magang')->group(function () {
+            Route::get('/', [App\Http\Controllers\MasaMagangController::class, 'index'])->name('masa.index');
+            Route::get('/show', [App\Http\Controllers\MasaMagangController::class, 'show'])->name('masa.show');
+            Route::post('/status/{id}', [App\Http\Controllers\MasaMagangController::class, 'status'])->name('masa.status');
+            Route::get('/edit/{id}', [App\Http\Controllers\MasaMagangController::class, 'edit'])->name('masa.edit');
+            Route::post('/update/{id}', [App\Http\Controllers\MasaMagangController::class, 'update'])->name('masa.update');
+            Route::post('/store', [App\Http\Controllers\MasaMagangController::class, 'store'])->name('masa.store');
+
+        });
         Route::prefix('/presensi')->group(function () {
             Route::get('/', [App\Http\Controllers\MasterPresensiController::class, 'index'])->name('master.presensi.index');
             Route::get('/show/{id}', [App\Http\Controllers\MasterPresensiController::class, 'show'])->name('master.presensi.show');
             Route::get('/show-detail/{id}', [App\Http\Controllers\DetailPresensiController::class, 'index'])->name('master.presensi.show.detail');
             Route::get('/detail/{id}', [App\Http\Controllers\DetailPresensiController::class, 'detail'])->name('master.presensi.detail');
+        });
+        Route::prefix('/logbook')->group(function () {
+            Route::get('/', [App\Http\Controllers\KelolaLogbookController::class, 'index'])->name('master.logbook.index');
+            Route::get('/show/{id}', [App\Http\Controllers\KelolaLogbookController::class, 'show'])->name('master.logbook.show');
+            Route::post('/status/{id}', [App\Http\Controllers\KelolaLogbookController::class, 'status'])->name('master.status.approve');
+            // Route::get('/detail/{id}', [App\Http\Controllers\KelolaLogbookController::class, 'detail'])->name('master.presensi.detail');
         });
     });
 });
@@ -98,4 +116,3 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
